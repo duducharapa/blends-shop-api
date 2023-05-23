@@ -9,6 +9,7 @@ import lombok.Builder;
  * @param name The product name.
  * @param description The product description.
  * @param price The product price.
+ * @param image The product image URL.
  */
 
 @Builder
@@ -16,5 +17,6 @@ public record ShowProductDTO(
    Integer id,
    String name,
    String description,
-   Double price
+   Double price,
+   String image
 ) {}

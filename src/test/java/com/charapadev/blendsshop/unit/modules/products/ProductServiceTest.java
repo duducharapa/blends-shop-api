@@ -38,8 +38,8 @@ public class ProductServiceTest {
     public void shouldListProducts() {
         // Given the list of products
         List<Product> expected = List.of(
-            new Product(1, "primeiro produto", "primeiro", 3.25, null),
-            new Product(2, "segundo produto", "esse vem depois", 2.00, null)
+            new Product(1, "primeiro produto", "primeiro", 3.25, "", null),
+            new Product(2, "segundo produto", "esse vem depois", 2.00, "", null)
         );
         // And mocked the repository to return these products
         Mockito.when(productRepository.findAll()).thenReturn(expected);
@@ -56,7 +56,7 @@ public class ProductServiceTest {
     @Test
     public void shouldCreateProduct() {
         // Given the data necessary to create a product
-        CreateProductDTO createDTO = new CreateProductDTO("novo produto", "sobre o produto", 2.25);
+        CreateProductDTO createDTO = new CreateProductDTO("novo produto", "sobre o produto", 2.25, "");
 
         // When called the create method
         Product product = productService.create(createDTO);
@@ -75,7 +75,7 @@ public class ProductServiceTest {
         // Given an identifier of a Product that exists
         Integer validID = 1;
         // And mocked a Product with this ID in repository
-        Product expected = new Product(1, "primeiro produto", "primeiro", 3.25, null);
+        Product expected = new Product(1, "primeiro produto", "primeiro", 3.25, "", null);
         Mockito.when(productRepository.findById(1)).thenReturn(Optional.of(expected));
 
         // When called the search method
@@ -104,7 +104,7 @@ public class ProductServiceTest {
     @Test
     public void shouldConvertProduct() {
         // Given the product with the data properly filled
-        Product product = new Product(1, "Primeiro produto", "Descrição", 2.25, null);
+        Product product = new Product(1, "Primeiro produto", "Descrição", 2.25,"", null);
 
         // When called the convert method
         ShowProductDTO showDTO = productService.convert(product);

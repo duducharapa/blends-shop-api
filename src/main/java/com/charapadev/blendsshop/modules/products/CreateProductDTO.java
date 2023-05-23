@@ -10,10 +10,12 @@ import jakarta.validation.constraints.Positive;
  * @param name The product name.
  * @param description The product description.
  * @param price The product price.
+ * @param image The Base64 content of product image.
  */
 
 public record CreateProductDTO(
    @NotBlank String name,
    @NotBlank String description,
-   @NotNull @Positive Double price
+   @NotNull @Positive Double price,
+   String image
 ) {}

@@ -1,7 +1,6 @@
 package com.charapadev.blendsshop.modules.products;
 
 import com.charapadev.blendsshop.modules.orders.items.OrderItem;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
@@ -28,10 +27,13 @@ public class Product {
     private String name;
 
     @Column
-    private String description;
+    private String description = "";
 
     @Column
     private Double price;
+
+    @Column
+    private String image;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "product")
@@ -48,5 +50,13 @@ public class Product {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    /**
+     * Sets an empty string if {@link #image image} property is null before persist on database.
+     */
+    @PrePersist
+    private void setEmptyImage() {
+        if (image == null) image = "";
     }
 }

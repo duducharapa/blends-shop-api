@@ -1,7 +1,6 @@
 package com.charapadev.blendsshop.unit.modules.orders;
 
 import com.charapadev.blendsshop.modules.orders.*;
-import com.charapadev.blendsshop.modules.orders.items.CreateOrderItemDTO;
 import com.charapadev.blendsshop.modules.orders.items.OrderItem;
 import com.charapadev.blendsshop.modules.orders.items.OrderItemService;
 import com.charapadev.blendsshop.modules.orders.items.ShowOrderItemDTO;
@@ -42,7 +41,7 @@ public class OrderServiceTest {
     @Test
     public void shouldConvertOrder() {
         // Given a Product to order
-        Product product = new Product(1, "Produto 1", "Produto pedido", 2.25, null);
+        Product product = new Product(1, "Produto 1", "Produto pedido", 2.25, "", null);
         ShowProductDTO expectedProductDTO = ShowProductDTO.builder()
             .id(product.getId()).name(product.getName()).description(product.getDescription()).price(product.getPrice())
             .build();

@@ -1,5 +1,6 @@
 package com.charapadev.blendsshop.modules.products;
 
+import com.charapadev.blendsshop.storage.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,9 @@ public class ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private StorageService storageService;
 
     /**
      * Searches all {@link Product Products} instances available.
@@ -38,7 +42,19 @@ public class ProductService {
             .price(createDTO.price())
             .build();
 
-        productRepository.save(product);
+        product = productRepository.save(product);
+
+        boolean imageNotNull = createDTO.image() != null;
+        if (imageNotNull) {
+            boolean imageNotBlank = !createDTO.image().isBlank();
+            if (imageNotBlank) {
+                String imageURL = storageService.uploadFile(createDTO.image());
+                product.setImage(imageURL);
+                product = productRepository.save(product);
+            }
+        }
+
+
         return product;
     }
 
@@ -61,7 +77,11 @@ public class ProductService {
      */
     public ShowProductDTO convert(Product product) {
         return ShowProductDTO.builder()
-            .id(product.getId()).name(product.getName()).description(product.getDescription()).price(product.getPrice())
+            .id(product.getId())
+            .name(product.getName())
+            .description(product.getDescription())
+            .price(product.getPrice())
+            .image(product.getImage())
             .build();
     }
 

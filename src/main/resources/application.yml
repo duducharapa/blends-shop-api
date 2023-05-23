@@ -12,4 +12,15 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+cloud:
+  aws:
+    s3:
+      url: https://s3.localhost.localstack.cloud:4566
+      bucket-name: blends-shop-bucket
+    region:
+      static: us-east-1
+      auto: false
+    credentials:
+      access-key: test
+      secret-key: test
 
