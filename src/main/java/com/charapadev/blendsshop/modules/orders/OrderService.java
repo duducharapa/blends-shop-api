@@ -38,18 +38,13 @@ public class OrderService {
         Integer queuePosition = addOnQueue();
         Order order = Order.builder()
             .number(queuePosition)
+            .items(new HashSet<>())
             .build();
-        order = orderRepository.save(order);
 
-        createItems(items, order);
-        order.setItems(new HashSet<>(items));
+        items.forEach(order::addItem);
         order = orderRepository.save(order);
 
         return order;
-    }
-
-    private void createItems(List<OrderItem> items, Order order) {
-        items.forEach(item -> orderItemService.create(item, order));
     }
 
     private Integer addOnQueue() {

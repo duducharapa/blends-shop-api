@@ -1,13 +1,17 @@
 package com.charapadev.blendsshop.unit.modules.orders.items;
 
 import com.charapadev.blendsshop.exceptions.ProductNotFoundException;
-import com.charapadev.blendsshop.modules.orders.Order;
 import com.charapadev.blendsshop.modules.orders.items.*;
 import com.charapadev.blendsshop.modules.products.Product;
 import com.charapadev.blendsshop.modules.products.ProductRepository;
 import com.charapadev.blendsshop.modules.products.ProductService;
 import com.charapadev.blendsshop.modules.products.ShowProductDTO;
+import com.charapadev.blendsshop.testutils.TestOrderItemUtils;
+import com.charapadev.blendsshop.testutils.TestProductUtils;
+import com.charapadev.blendsshop.testutils.TestShowProductUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
@@ -19,10 +23,10 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 
 import java.util.Optional;
-import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class OrderItemServiceTest {
 
     @Mock
@@ -31,69 +35,63 @@ public class OrderItemServiceTest {
     @Mock
     private ProductRepository productRepository;
 
-    @Mock
-    private OrderItemRepository orderItemRepository;
-
     @InjectMocks
     private OrderItemService orderItemService;
 
     @Test
-    public void shouldGenerateItem() {
-        // Given the data to create an order item
-        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(2, 1);
-        Product product = Product.builder()
-            .id(1).name("Produto").description("Teste").price(2.25)
-            .build();
-        // And mocked the repository
-        Mockito.when(productRepository.findById(1)).thenReturn(Optional.of(product));
+    public void should_generate_an_order_item_successfully() {
+        int validProductID = 1;
+        Product expectProduct = TestProductUtils.generateProduct(true);
 
-        // When called the generation method
+        // Given the data to create an order item
+        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(2, validProductID);
+        // And mocked the repository to return the expected product
+        Mockito.when(productRepository.findById(validProductID)).thenReturn(Optional.of(expectProduct));
+
+        // When called the GENERATE method
         OrderItem item = orderItemService.generate(createDTO);
 
-        // Then the item must have the same product and quantity from original source
-        Assertions.assertEquals(2, item.getQuantity());
-        Assertions.assertEquals(product, item.getProduct());
-        // And the repository must be called just one time
-        Mockito.verify(productRepository, Mockito.times(1)).findById(1);
+        // Then the item must have the same data from original source
+        Assertions.assertEquals(TestOrderItemUtils.EXPECTED_QUANTITY, item.getQuantity());
+        Assertions.assertEquals(expectProduct, item.getProduct());
+        // And the repository must be called one time
+        Mockito.verify(productRepository, Mockito.only()).findById(validProductID);
     }
 
     @Test
-    public void shouldThrowErrorItemGeneration() {
-        // Given the data to generate an order item
-        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(2, 1);
+    public void should_throw_an_error_on_item_generation() {
+        int invalidProductID = 1;
 
-        // When called the generation method
+        // Given the data to generate an order item
+        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(2, invalidProductID);
+
+        // When called the GENERATE method
         Executable executable = () -> orderItemService.generate(createDTO);
 
-        // Then must throw the correct exception
+        // Then must throw the expected exception
         Assertions.assertThrows(ProductNotFoundException.class, executable);
-        // And the repository must be called just one time
-        Mockito.verify(productRepository, Mockito.times(1)).findById(1);
+        // And the repository must be called one time
+        Mockito.verify(productRepository, Mockito.only()).findById(invalidProductID);
     }
 
     @Test
-    public void shouldConvertItem() {
-        // Given an item properly filled
-        Product product = Product.builder()
-            .id(1).name("Produto").description("Teste").price(2.25)
-            .build();
-        ShowProductDTO expectProduct = ShowProductDTO.builder()
-            .id(1).name("Produto").description("Teste").price(2.25)
-            .build();
-        OrderItem item = OrderItem.builder()
-            .product(product).quantity(2)
-            .build();
-        // And mocked the product service to returns the expected data
+    public void should_convert_item_successfully() {
+        Product product = TestProductUtils.generateProduct(false);
+        ShowProductDTO expectProduct = TestShowProductUtils.generateShowProduct();
+
+        // Given an order item
+        OrderItem item = TestOrderItemUtils.generateItem(product);
+        // And mocked the product service to return the expected data
         Mockito.when(productService.convert(Mockito.any())).thenReturn(expectProduct);
 
-        // When called the conversion method
+        // When called the CONVERT method
         ShowOrderItemDTO showDTO = orderItemService.convert(item);
 
-        // The the returned DTO must have the same quantity and Product from original source
-        Assertions.assertEquals(2, showDTO.quantity());
+        // Then the returned item must have the same data from original
+        Assertions.assertEquals(TestOrderItemUtils.EXPECTED_QUANTITY, showDTO.quantity());
         Assertions.assertEquals(expectProduct, showDTO.product());
-        // And the product service must be called only one time
-        Mockito.verify(productService, Mockito.times(1)).convert(Mockito.any());
+        // And the product service must be called one time
+        Mockito.verify(productService, Mockito.only()).convert(Mockito.any());
     }
 
 }

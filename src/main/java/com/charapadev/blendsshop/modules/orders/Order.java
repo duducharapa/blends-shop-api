@@ -4,7 +4,9 @@ import com.charapadev.blendsshop.modules.orders.items.OrderItem;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
+import org.hibernate.collection.spi.PersistentSet;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,7 +27,8 @@ public class Order {
     @Column
     private Integer number;
 
-    @OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
+    @OneToMany(cascade = CascadeType.ALL)
+    @ToString.Exclude
     private Set<OrderItem> items;
 
     @Override
@@ -39,5 +42,11 @@ public class Order {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public void addItem(OrderItem item) {
+        if (items == null) items = new HashSet<>();
+
+        items.add(item);
     }
 }

@@ -42,19 +42,16 @@ public class ProductService {
             .price(createDTO.price())
             .build();
 
-        product = productRepository.save(product);
-
         boolean imageNotNull = createDTO.image() != null;
         if (imageNotNull) {
             boolean imageNotBlank = !createDTO.image().isBlank();
             if (imageNotBlank) {
                 String imageURL = storageService.uploadFile(createDTO.image());
                 product.setImage(imageURL);
-                product = productRepository.save(product);
             }
         }
 
-
+        product = productRepository.save(product);
         return product;
     }
 

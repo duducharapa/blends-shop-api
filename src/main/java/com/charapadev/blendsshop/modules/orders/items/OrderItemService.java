@@ -1,7 +1,6 @@
 package com.charapadev.blendsshop.modules.orders.items;
 
 import com.charapadev.blendsshop.exceptions.ProductNotFoundException;
-import com.charapadev.blendsshop.modules.orders.Order;
 import com.charapadev.blendsshop.modules.products.Product;
 import com.charapadev.blendsshop.modules.products.ProductRepository;
 import com.charapadev.blendsshop.modules.products.ProductService;
@@ -18,9 +17,6 @@ public class OrderItemService {
     @Autowired
     private ProductService productService;
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-
     public OrderItem generate(CreateOrderItemDTO createDTO) throws ProductNotFoundException {
         Product product = productRepository.findById(createDTO.productID())
             .orElseThrow(ProductNotFoundException::new);
@@ -29,12 +25,6 @@ public class OrderItemService {
             .product(product)
             .quantity(createDTO.quantity())
             .build();
-    }
-
-    public void create(OrderItem item, Order order) {
-        item.setOrder(order);
-
-        orderItemRepository.save(item);
     }
 
     public ShowOrderItemDTO convert(OrderItem item) {

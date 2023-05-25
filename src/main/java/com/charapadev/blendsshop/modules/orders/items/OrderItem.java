@@ -27,7 +27,6 @@ public class OrderItem {
     @ManyToOne
     private Product product;
 
-    @JsonIgnore
     @ToString.Exclude
     @ManyToOne
     private Order order;

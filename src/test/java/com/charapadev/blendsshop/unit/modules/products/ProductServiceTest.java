@@ -1,9 +1,10 @@
 package com.charapadev.blendsshop.unit.modules.products;
 
 import com.charapadev.blendsshop.modules.products.*;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import com.charapadev.blendsshop.storage.StorageService;
+import com.charapadev.blendsshop.testutils.TestCreateProductUtils;
+import com.charapadev.blendsshop.testutils.TestProductUtils;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
@@ -21,10 +22,14 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 // TODO: Search how to resolve it
 @MockitoSettings(strictness = Strictness.LENIENT)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class ProductServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private ProductService productService;
@@ -35,84 +40,119 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void shouldListProducts() {
-        // Given the list of products
+    public void should_list_products_successfully() {
+        int EXPECTED_LIST_SIZE = 2;
+
+        // Given a list of products
         List<Product> expected = List.of(
-            new Product(1, "primeiro produto", "primeiro", 3.25, "", null),
-            new Product(2, "segundo produto", "esse vem depois", 2.00, "", null)
+            TestProductUtils.generateProduct(true),
+            TestProductUtils.generateOtherProduct()
         );
         // And mocked the repository to return these products
         Mockito.when(productRepository.findAll()).thenReturn(expected);
 
-        // When called the list method
+        // When called the LIST method
         List<Product> products = productService.list();
 
-        // Then the size of products list should maintain in value 2
-        Assertions.assertEquals(2, products.size());
-        // And the repository must be called just one time
+        // Then the product list size must be exactly as expected
+        Assertions.assertEquals(EXPECTED_LIST_SIZE, products.size());
+        // And the repository must be called one time
         Mockito.verify(productRepository, Mockito.times(1)).findAll();
     }
 
     @Test
-    public void shouldCreateProduct() {
-        // Given the data necessary to create a product
-        CreateProductDTO createDTO = new CreateProductDTO("novo produto", "sobre o produto", 2.25, "");
+    public void should_create_product_successfully() {
+        Product expectedProduct = TestProductUtils.generateProduct(true);
 
-        // When called the create method
+        // Given the data necessary to create a product
+        CreateProductDTO createDTO = TestCreateProductUtils.generateCreateProduct(true);
+        // And mocked the storage service to return the image URL
+        Mockito.when(storageService.uploadFile(Mockito.any())).thenReturn(TestProductUtils.EXPECTED_IMAGE);
+        // And mocked the repository to return the expected product
+        Mockito.when(productRepository.save(Mockito.any())).thenReturn(expectedProduct);
+
+        // When called the CREATE method
         Product product = productService.create(createDTO);
 
         // Then the product must have the same properties was passed on creation
-        // A name, description and price
-        Assertions.assertEquals("novo produto", product.getName());
-        Assertions.assertEquals("sobre o produto", product.getDescription());
-        Assertions.assertEquals(2.25, product.getPrice());
-        // And the repository must be called just one time
-        Mockito.verify(productRepository, Mockito.times(1)).save(product);
+        Assertions.assertEquals(TestProductUtils.EXPECTED_NAME, product.getName());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_DESCRIPTION, product.getDescription());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_PRICE, product.getPrice());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_IMAGE, product.getImage());
+        // And the repository must be called one time
+        Mockito.verify(productRepository, Mockito.times(1)).save(Mockito.any());
+        // And the storage service must be called one time
+        Mockito.verify(storageService, Mockito.times(1)).uploadFile(Mockito.any());
     }
 
     @Test
-    public void shouldSearchProductCorrectly() {
-        // Given an identifier of a Product that exists
-        Integer validID = 1;
-        // And mocked a Product with this ID in repository
-        Product expected = new Product(1, "primeiro produto", "primeiro", 3.25, "", null);
-        Mockito.when(productRepository.findById(1)).thenReturn(Optional.of(expected));
+    public void should_create_product_successfully_without_call_storage() {
+        Product expectedProduct = TestProductUtils.generateProduct(false);
 
-        // When called the search method
+        // Given the data necessary to create a product
+        CreateProductDTO createDTO = TestCreateProductUtils.generateCreateProduct(false);
+        // And mocked the repository to return the expected product
+        Mockito.when(productRepository.save(Mockito.any())).thenReturn(expectedProduct);
+
+        // When called the CREATE method
+        Product product = productService.create(createDTO);
+
+        // Then the returned product must be equals as expect
+        Assertions.assertEquals(TestProductUtils.EXPECTED_NAME, product.getName());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_DESCRIPTION, product.getDescription());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_PRICE, product.getPrice());
+        Assertions.assertEquals("", product.getImage());
+        // And the repository must be called one time
+        Mockito.verify(productRepository, Mockito.only()).save(Mockito.any());
+        // And the storage service must be never called
+        Mockito.verify(storageService, Mockito.never()).uploadFile(Mockito.any());
+    }
+
+    @Test
+    public void should_search_product_successfully() {
+        Product expectedProduct = TestProductUtils.generateProduct(true);
+
+        // Given an ID from a valid Product
+        Integer validID = 1;
+        // And mocked the repository to return that Product
+        Mockito.when(productRepository.findById(validID)).thenReturn(Optional.of(expectedProduct));
+
+        // When called the SEARCH method
         Product product = productService.findOneOrFail(validID);
 
-        // Then the returned value must be equals to product found on repository
-        Assertions.assertEquals(expected, product);
-        // And the repository must be called just one time
+        // Then the returned object must be equals as expected
+        Assertions.assertEquals(expectedProduct, product);
+        // And the repository must be called one time
         Mockito.verify(productRepository, Mockito.times(1)).findById(validID);
     }
 
     @Test
-    public void shouldThrowErrorOnSearch() {
-        // Given the identifier of a Product does not exist
+    public void should_throw_an_error_on_search_product() {
+        // Given the ID of an invalid Product
         Integer invalidID = 1;
 
-        // When called the search method
+        // When called the SEARCH method
         Executable executable = () -> productService.findOneOrFail(invalidID);
 
-        // Then must throw the correct exception
+        // Then must throw the expected exception
         Assertions.assertThrows(NoSuchElementException.class, executable);
-        // And the repository must be called just one time
+        // And the repository must be called one time
         Mockito.verify(productRepository, Mockito.times(1)).findById(invalidID);
     }
 
     @Test
-    public void shouldConvertProduct() {
+    public void should_convert_product_successfully() {
         // Given the product with the data properly filled
-        Product product = new Product(1, "Primeiro produto", "Descrição", 2.25,"", null);
+        Product product = TestProductUtils.generateProduct(true);
 
         // When called the convert method
         ShowProductDTO showDTO = productService.convert(product);
 
         // Then the returned DTO must have the same data from product
-        Assertions.assertEquals(1, showDTO.id());
-        Assertions.assertEquals("Primeiro produto", showDTO.name());
-        Assertions.assertEquals("Descrição", showDTO.description());
-        Assertions.assertEquals(2.25, showDTO.price());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_ID, showDTO.id());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_NAME, showDTO.name());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_DESCRIPTION, showDTO.description());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_PRICE, showDTO.price());
+        Assertions.assertEquals(TestProductUtils.EXPECTED_IMAGE, showDTO.image());
     }
 }
