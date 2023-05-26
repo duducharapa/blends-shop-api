@@ -2,7 +2,6 @@ package com.charapadev.blendsshop.modules.orders.items;
 
 import com.charapadev.blendsshop.modules.orders.Order;
 import com.charapadev.blendsshop.modules.products.Product;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;

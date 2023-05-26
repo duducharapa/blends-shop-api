@@ -4,7 +4,6 @@ import com.charapadev.blendsshop.modules.orders.items.OrderItem;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
-import org.hibernate.collection.spi.PersistentSet;
 
 import java.util.HashSet;
 import java.util.Objects;

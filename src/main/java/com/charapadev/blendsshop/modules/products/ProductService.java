@@ -60,7 +60,7 @@ public class ProductService {
      *
      * @param productId The product ID.
      * @return The product found.
-     * @throws NoSuchElementException If cannot find any Product with this ID.
+     * @throws NoSuchElementException If the application cannot find any Product with this ID.
      */
     public Product findOneOrFail(Integer productId) throws NoSuchElementException {
         return productRepository.findById(productId).orElseThrow();

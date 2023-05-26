@@ -6,11 +6,11 @@ import java.util.Set;
 
 public class TestProductUtils {
 
-    public static int EXPECTED_ID = 1;
-    public static String EXPECTED_NAME = "Primeiro produto";
-    public static String EXPECTED_DESCRIPTION = "Este é o primeiro produto";
-    public static String EXPECTED_IMAGE = "https://testeimagem.com.br/imagemteste.jpeg";
-    public static double EXPECTED_PRICE = 2.25;
+    public static final int EXPECTED_ID = 1;
+    public static final String EXPECTED_NAME = "Primeiro produto";
+    public static final String EXPECTED_DESCRIPTION = "Este é o primeiro produto";
+    public static final String EXPECTED_IMAGE = "https://testeimagem.com.br/imagemteste.jpeg";
+    public static final double EXPECTED_PRICE = 2.25;
 
     public static Product generateProduct(boolean image) {
         return Product.builder()

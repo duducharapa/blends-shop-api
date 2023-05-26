@@ -6,9 +6,6 @@ import com.charapadev.blendsshop.modules.products.Product;
 import com.charapadev.blendsshop.modules.products.ProductRepository;
 import com.charapadev.blendsshop.modules.products.ProductService;
 import com.charapadev.blendsshop.modules.products.ShowProductDTO;
-import com.charapadev.blendsshop.testutils.TestOrderItemUtils;
-import com.charapadev.blendsshop.testutils.TestProductUtils;
-import com.charapadev.blendsshop.testutils.TestShowProductUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -41,10 +38,18 @@ public class OrderItemServiceTest {
     @Test
     public void should_generate_an_order_item_successfully() {
         int validProductID = 1;
-        Product expectProduct = TestProductUtils.generateProduct(true);
+        int EXPECTED_QUANTITY = 2;
+
+        Product expectProduct = Product.builder()
+            .id(1)
+            .name("Teste")
+            .description("Teste 123")
+            .image("teste.png")
+            .price(2.50)
+            .build();
 
         // Given the data to create an order item
-        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(2, validProductID);
+        CreateOrderItemDTO createDTO = new CreateOrderItemDTO(EXPECTED_QUANTITY, validProductID);
         // And mocked the repository to return the expected product
         Mockito.when(productRepository.findById(validProductID)).thenReturn(Optional.of(expectProduct));
 
@@ -52,7 +57,7 @@ public class OrderItemServiceTest {
         OrderItem item = orderItemService.generate(createDTO);
 
         // Then the item must have the same data from original source
-        Assertions.assertEquals(TestOrderItemUtils.EXPECTED_QUANTITY, item.getQuantity());
+        Assertions.assertEquals(EXPECTED_QUANTITY, item.getQuantity());
         Assertions.assertEquals(expectProduct, item.getProduct());
         // And the repository must be called one time
         Mockito.verify(productRepository, Mockito.only()).findById(validProductID);
@@ -76,20 +81,38 @@ public class OrderItemServiceTest {
 
     @Test
     public void should_convert_item_successfully() {
-        Product product = TestProductUtils.generateProduct(false);
-        ShowProductDTO expectProduct = TestShowProductUtils.generateShowProduct();
+        int EXPECTED_QUANTITY = 4;
+
+        Product product = Product.builder()
+            .id(1)
+            .name("Teste")
+            .description("Teste conversão")
+            .price(2.40)
+            .image("Teste.png")
+            .build();
+        ShowProductDTO expectedProductDTO = ShowProductDTO.builder()
+            .id(product.getId())
+            .name(product.getName())
+            .description(product.getDescription())
+            .price(product.getPrice())
+            .image(product.getImage())
+            .build();
 
         // Given an order item
-        OrderItem item = TestOrderItemUtils.generateItem(product);
+        OrderItem item = OrderItem.builder()
+            .id(1)
+            .quantity(EXPECTED_QUANTITY)
+            .product(product)
+            .build();
         // And mocked the product service to return the expected data
-        Mockito.when(productService.convert(Mockito.any())).thenReturn(expectProduct);
+        Mockito.when(productService.convert(Mockito.any())).thenReturn(expectedProductDTO);
 
         // When called the CONVERT method
         ShowOrderItemDTO showDTO = orderItemService.convert(item);
 
         // Then the returned item must have the same data from original
-        Assertions.assertEquals(TestOrderItemUtils.EXPECTED_QUANTITY, showDTO.quantity());
-        Assertions.assertEquals(expectProduct, showDTO.product());
+        Assertions.assertEquals(EXPECTED_QUANTITY, showDTO.quantity());
+        Assertions.assertEquals(expectedProductDTO, showDTO.product());
         // And the product service must be called one time
         Mockito.verify(productService, Mockito.only()).convert(Mockito.any());
     }
