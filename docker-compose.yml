@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  awsinfra:
+    image: localstack/localstack:latest
+    ports:
+      - 4566:4566
+      - 4510-4559:4510-4559
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    networks:
+      - infra
+  app:
+    image: charapadev/blends-shop-app
+    ports:
+      - 3000:3000
+    networks:
+      - frontend
+  database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: blends-shop
+    ports:
+      - 5432:5432
+    networks:
+      - data
+  api:
+    image: blendsshop
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://database:5432/blends-shop
+      - CLOUD_AWS_S3_URL=http://172.17.0.1:4566
+    depends_on:
+      - database
+      - awsinfra
+    networks:
+      - data
+      - frontend
+      - backend
+      - infra
+networks:
+  data:
+  frontend:
+  backend:
+  infra:
