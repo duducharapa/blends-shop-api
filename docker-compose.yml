@@ -13,7 +13,11 @@ services:
   app:
     image: charapadev/blends-shop-app
     ports:
-      - 3000:3000
+      - 3000:80
+    environment:
+      API_URL: http://api:8080
+    depends_on:
+      - api
     networks:
       - frontend
   database:
@@ -27,7 +31,7 @@ services:
     networks:
       - data
   api:
-    image: blendsshop
+    image: charapadev/blends-shop-api
     ports:
       - 8080:8080
     environment:
