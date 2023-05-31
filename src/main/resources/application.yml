@@ -23,4 +23,8 @@ cloud:
     credentials:
       access-key: test
       secret-key: test
-
+admin:
+  access_code: teste
+  secret: teste123
+jwt:
+  key: Qp3Hyp428oqrTRljnZquaabGVJV6IY150K6ugfOuBXWZN7BZslJjEHnAN6abzQXd
