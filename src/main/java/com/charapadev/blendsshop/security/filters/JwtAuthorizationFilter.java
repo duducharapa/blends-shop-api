@@ -2,6 +2,9 @@ package com.charapadev.blendsshop.security.filters;
 
 import com.charapadev.blendsshop.security.authentications.DefaultAuthentication;
 import com.charapadev.blendsshop.utils.JwtHelper;
+import com.charapadev.blendsshop.utils.Route;
+import com.charapadev.blendsshop.utils.RouteMatcher;
+import com.charapadev.blendsshop.utils.Routes;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -48,7 +51,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getServletPath().equals("/products");
+        Route actualRoute = new Route(request.getMethod(), request.getServletPath());
+
+        return Routes.getPublicRoutes().stream()
+            .anyMatch((expected) -> RouteMatcher.match(expected, actualRoute));
     }
 
     private String extractJwtFromHeader(String header) throws BadCredentialsException {

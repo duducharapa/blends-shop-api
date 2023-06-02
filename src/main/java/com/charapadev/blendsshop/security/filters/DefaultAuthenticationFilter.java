@@ -2,6 +2,9 @@ package com.charapadev.blendsshop.security.filters;
 
 import com.charapadev.blendsshop.security.authentications.DefaultAuthentication;
 import com.charapadev.blendsshop.utils.JwtHelper;
+import com.charapadev.blendsshop.utils.Route;
+import com.charapadev.blendsshop.utils.RouteMatcher;
+import com.charapadev.blendsshop.utils.Routes;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,7 +47,8 @@ public class DefaultAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !request.getServletPath().equals("/login");
+        Route actualRoute = new Route(request.getMethod(), request.getServletPath());
+        return !RouteMatcher.match(Routes.REQUEST_AUTH_TOKEN, actualRoute);
     }
 
     private void checkNullableParameters(HttpServletResponse response) {

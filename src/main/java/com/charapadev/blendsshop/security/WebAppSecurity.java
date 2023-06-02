@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -46,7 +47,9 @@ public class WebAppSecurity {
         http.addFilterAt(defaultAuthenticationFilter, BasicAuthenticationFilter.class);
         http.addFilterAfter(jwtAuthorizationFilter, BasicAuthenticationFilter.class);
 
-        http.authorizeHttpRequests((auth) -> auth.anyRequest().permitAll());
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.GET, "/products/**").permitAll());
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.POST, "/login").permitAll());
+        http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
 
         return http.build();
     }

@@ -2,6 +2,7 @@ version: "3.9"
 
 services:
   awsinfra:
+    container_name: bs_localstack
     image: localstack/localstack:latest
     ports:
       - 4566:4566
@@ -11,16 +12,14 @@ services:
     networks:
       - infra
   app:
+    container_name: bs_webapp
     image: charapadev/blends-shop-app
     ports:
       - 3000:80
-    environment:
-      API_URL: http://api:8080
-    depends_on:
-      - api
     networks:
       - frontend
   database:
+    container_name: bs_database
     image: postgres
     restart: always
     environment:
@@ -31,6 +30,7 @@ services:
     networks:
       - data
   api:
+    container_name: bs_api
     image: charapadev/blends-shop-api
     ports:
       - 8080:8080
