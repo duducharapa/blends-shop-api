@@ -48,6 +48,7 @@ public class WebAppSecurity {
         http.addFilterAfter(jwtAuthorizationFilter, BasicAuthenticationFilter.class);
 
         http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.GET, "/products/**").permitAll());
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.POST, "/orders").permitAll());
         http.authorizeHttpRequests((auth) -> auth.requestMatchers(HttpMethod.POST, "/login").permitAll());
         http.authorizeHttpRequests((auth) -> auth.anyRequest().authenticated());
 
