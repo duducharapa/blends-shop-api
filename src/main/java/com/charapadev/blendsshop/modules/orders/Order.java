@@ -26,7 +26,7 @@ public class Order {
     @Column
     private Integer number;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<OrderItem> items;
 
